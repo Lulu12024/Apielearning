@@ -12,12 +12,13 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Configuration de la connexion à la base de données PostgreSQL
+
 const pool = new Pool({
-    user: 'uqleeluxr0t9ov7f7euv',
-    host: 'btvrbq7bowvnmetulod5-postgresql.services.clever-cloud.com',
-    database: 'btvrbq7bowvnmetulod5',
-    password: 'zROGtWB0nBFFW9Y48nfM',
-    port: 5280,
+    user: 'urbiimzyajypiaak85ms',
+    host: 'bq6hhe5uadgymark8ejl-postgresql.services.clever-cloud.com',
+    database: 'bq6hhe5uadgymark8ejl',
+    password: 'KDMuFDlF9kyQ949iQxur',
+    port: 5433,
   });
 
 
