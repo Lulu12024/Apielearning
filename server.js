@@ -13,11 +13,11 @@ app.use(bodyParser.json());
 
 // Configuration de la connexion à la base de données PostgreSQL
 const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'elearning_db',
-    password: 'admin',
-    port: 5432,
+    user: 'uqleeluxr0t9ov7f7euv',
+    host: 'btvrbq7bowvnmetulod5-postgresql.services.clever-cloud.com',
+    database: 'btvrbq7bowvnmetulod5',
+    password: 'zROGtWB0nBFFW9Y48nfM',
+    port: 5280,
   });
 
 
