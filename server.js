@@ -13,14 +13,21 @@ app.use(bodyParser.json());
 
 // Configuration de la connexion à la base de données PostgreSQL
 
-const pool = new Pool({
-    user: 'urbiimzyajypiaak85ms',
-    host: 'bq6hhe5uadgymark8ejl-postgresql.services.clever-cloud.com',
-    database: 'bq6hhe5uadgymark8ejl',
-    password: 'KDMuFDlF9kyQ949iQxur',
-    port: 5433,
-  });
+// const pool = new Pool({
+//     user: 'urbiimzyajypiaak85ms',
+//     host: 'bq6hhe5uadgymark8ejl-postgresql.services.clever-cloud.com',
+//     database: 'bq6hhe5uadgymark8ejl',
+//     password: 'KDMuFDlF9kyQ949iQxur',
+//     port: 5433,
+//   });
 
+const pool = new Pool({
+  user: 'postgres',
+  host: 'localhost',
+  database: 'elearning_db',
+  password: 'admin',
+  port: 5432,
+});
 
 /***************************************************************************************************************************************** */
   //endpoint pour l'inscription
@@ -370,107 +377,109 @@ app.get('/api/user/dashboard/', async(req, res) => {
 
 //rechercher un cours par son id
 
-app.post('/api/cours/search_by_id/', async(req, res) => {
+app.post('/api/cours/search_by_id/', async (req, res) => {
   const { courId } = req.body;
   try {
-      const query = `
-        SELECT c.title AS cours_title, c.description AS cours_description,
-               ch.title AS chapter_title, ch.description AS chapter_description,
-               s.title AS subsection_title, s.content AS subsection_content,
-               q.statement AS question_statement,
-               o.text AS option_text, o.is_correct AS option_is_correct
-        FROM cours_course AS c
-        JOIN cours_chapter AS ch ON c.id = ch.course_id
-        JOIN cours_subsection AS s ON ch.id = s.chapter_id
-        JOIN cours_question AS q ON ch.id = q.chapter_id
-        JOIN cours_option AS o ON q.id = o.question_id
-        WHERE c.id = $1
-      `;
-      const value = [ courId]
-      const result = await pool.query(query , value);
-  
-      const coursAleatoires = [];
-  
-      result.rows.forEach(row => {
-        const {
-          cours_id,
-          cours_title,
-          cours_description,
-          chapter_title,
-          chapter_description,
-          subsection_title,
-          subsection_content,
-          question_statement,
-          option_text,
-          option_is_correct
-        } = row;
-  
-        let existingCours = coursAleatoires.find(cours => cours.title === cours_title);
-  
-        if (!existingCours) {
-          existingCours = {
-            id: cours_id,
-            title: cours_title,
-            description: cours_description,
-            chapters: []
-          };
-          coursAleatoires.push(existingCours);
-        }
-  
-        let existingChapter = existingCours.chapters.find(chapter => chapter.title === chapter_title);
-  
-        if (!existingChapter) {
-          existingChapter = {
-            title: chapter_title,
-            description: chapter_description,
-            subsections: [],
-            quiz: {
-              questions: []
-            }
-          };
-          existingCours.chapters.push(existingChapter);
-        }
-  
-        let existingSubsection = existingChapter.subsections.find(subsection => subsection.title === subsection_title);
-  
-        if (!existingSubsection) {
-          existingSubsection = {
-            title: subsection_title,
-            content: subsection_content
-          };
-          existingChapter.subsections.push(existingSubsection);
-        }
-  
-        let existingQuestion = existingChapter.quiz.questions.find(question => question.statement === question_statement);
-  
-        if (!existingQuestion) {
-          existingQuestion = {
-            statement: question_statement,
-            options: []
-          };
-          existingChapter.quiz.questions.push(existingQuestion);
-        }
-  
+    const query = `
+        SELECT DISTINCT o.id AS option_id,
+        c.id AS cours_id, c.title AS cours_title, c.description AS cours_description,
+        ch.id AS chapter_id, ch.title AS chapter_title, ch.description AS chapter_description,
+        s.title AS subsection_title, s.content AS subsection_content,
+        q.statement AS question_statement,
+        o.text AS option_text, o.is_correct AS option_is_correct
+    FROM cours_course AS c
+    JOIN cours_chapter AS ch ON c.id = ch.course_id
+    JOIN cours_subsection AS s ON ch.id = s.chapter_id
+    JOIN cours_question AS q ON ch.id = q.chapter_id
+    JOIN cours_option AS o ON q.id = o.question_id
+    WHERE c.id = $1
+    `;
+    const value = [courId];
+    const result = await pool.query(query, value);
+
+    const coursAleatoires = [];
+
+    result.rows.forEach(row => {
+      const {
+        cours_id,
+        cours_title,
+        cours_description,
+        chapter_id,
+        chapter_title,
+        chapter_description,
+        subsection_title,
+        subsection_content,
+        question_statement,
+        option_id,
+        option_text,
+        option_is_correct
+      } = row;
+
+      let existingCours = coursAleatoires.find(cours => cours.id === cours_id);
+
+      if (!existingCours) {
+        existingCours = {
+          id: cours_id,
+          title: cours_title,
+          description: cours_description,
+          chapters: []
+        };
+        coursAleatoires.push(existingCours);
+      }
+
+      let existingChapter = existingCours.chapters.find(chapter => chapter.id === chapter_id);
+
+      if (!existingChapter) {
+        existingChapter = {
+          id: chapter_id,
+          title: chapter_title,
+          description: chapter_description,
+          subsections: [],
+          quiz: {
+            questions: []
+          }
+        };
+        existingCours.chapters.push(existingChapter);
+      }
+
+      let existingSubsection = existingChapter.subsections.find(subsection => subsection.title === subsection_title);
+
+      if (!existingSubsection) {
+        existingSubsection = {
+          title: subsection_title,
+          content: subsection_content
+        };
+        existingChapter.subsections.push(existingSubsection);
+      }
+
+      let existingQuestion = existingChapter.quiz.questions.find(question => question.statement === question_statement);
+
+      if (!existingQuestion) {
+        existingQuestion = {
+          statement: question_statement,
+          options: []
+        };
+        existingChapter.quiz.questions.push(existingQuestion);
+      }
+
+      // Vérifier si l'option avec le même ID existe déjà
+      const existingOption = existingQuestion.options.find(option => option.id === option_id);
+
+      if (!existingOption) {
         existingQuestion.options.push({
+          id: option_id,
           text: option_text,
           is_correct: option_is_correct
         });
-      });
-  
-      // Tri des chapitres et sous-sections par ordre alphabétique
-      coursAleatoires.forEach(cours => {
-        cours.chapters.sort((a, b) => a.title.localeCompare(b.title));
-        cours.chapters.forEach(chapter => {
-          chapter.subsections.sort((a, b) => a.title.localeCompare(b.title));
-        });
-      });
-  
-      res.json(coursAleatoires);
-    } catch (error) {
-      console.error(error);
-      res.status(400).json({ error: 'Une erreur est survenue' });
-    }
-  });
+      }
+    });
+
+    res.json(coursAleatoires);
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ error: 'Une erreur est survenue' });
+  }
+});
 /****************************************************************************************************************************************** */
 //rechercher un cours par son titre
 //rechercher un cours par son id
@@ -602,11 +611,33 @@ app.post('/api/suivi-cours', async (req, res) => {
   app.post('/api/update-cours-suivi', async (req, res) => {
     try {
       //const { id } = req.params;
-      const { progression , users , courId } = req.body;
+      const { progression ,chapter, users , courId } = req.body;
   
       // Mettre à jour la progression du suivi de cours dans la base de données
-      const query = 'UPDATE cours_courssuivi SET progression = $1 WHERE utilisateur_id = $2 AND cours_id = $3 RETURNING *';
-      const values = [progression, users ,  courId ];
+      const query = 'UPDATE cours_courssuivi SET progression = $1, chapter_id = $2 WHERE utilisateur_id = $3 AND cours_id = $4 RETURNING *';
+      const values = [progression,chapter, users ,  courId ];
+      const result = await pool.query(query, values);
+  
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'Suivi de cours introuvable' });
+      }
+  
+      res.json(result.rows[0]);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Une erreur est survenue' });
+    }
+  });
+
+  // Route pour mettre à jour la progression d'un suivi de cours apres un quiz
+  app.post('/api/update-cours-suivi-after-quiz', async (req, res) => {
+    try {
+      //const { id } = req.params;
+      const { progression ,cours_done, users , courId } = req.body;
+  
+      // Mettre à jour la progression du suivi de cours dans la base de données
+      const query = 'UPDATE cours_courssuivi SET progression = $1 , cours_done= $2 WHERE utilisateur_id = $3 AND cours_id = $4 RETURNING *';
+      const values = [progression,cours_done, users ,  courId ];
       const result = await pool.query(query, values);
   
       if (result.rows.length === 0) {
@@ -752,7 +783,7 @@ app.post('/api/cours-pourcentage', async (req, res) => {
   const {courId, utilisateurId} = req.body;
   try {
     const query = `
-      SELECT progression
+      SELECT progression , chapter_id , cours_done
       FROM cours_courssuivi WHERE utilisateur_id = $1 AND cours_id= $2;
     `;
     const value = [  utilisateurId , courId]
