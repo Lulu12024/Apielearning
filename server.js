@@ -13,21 +13,21 @@ app.use(bodyParser.json());
 
 // Configuration de la connexion à la base de données PostgreSQL
 
-const pool = new Pool({
-    user: 'urbiimzyajypiaak85ms',
-    host: 'bq6hhe5uadgymark8ejl-postgresql.services.clever-cloud.com',
-    database: 'bq6hhe5uadgymark8ejl',
-    password: 'KDMuFDlF9kyQ949iQxur',
-    port: 5433,
-  });
-
 // const pool = new Pool({
-//   user: 'postgres',
-//   host: 'localhost',
-//   database: 'elearning_db',
-//   password: 'admin',
-//   port: 5432,
-// });
+//     user: 'urbiimzyajypiaak85ms',
+//     host: 'bq6hhe5uadgymark8ejl-postgresql.services.clever-cloud.com',
+//     database: 'bq6hhe5uadgymark8ejl',
+//     password: 'KDMuFDlF9kyQ949iQxur',
+//     port: 5433,
+//   });
+
+const pool = new Pool({
+  user: 'postgres',
+  host: 'localhost',
+  database: 'elearning_db',
+  password: 'admin',
+  port: 5432,
+});
 
 /***************************************************************************************************************************************** */
   //endpoint pour l'inscription
@@ -611,11 +611,11 @@ app.post('/api/suivi-cours', async (req, res) => {
   app.post('/api/update-cours-suivi', async (req, res) => {
     try {
       //const { id } = req.params;
-      const { progression ,chapter, users , courId } = req.body;
+      const { progression ,chapter, users , courId , quiz_done} = req.body;
   
       // Mettre à jour la progression du suivi de cours dans la base de données
-      const query = 'UPDATE cours_courssuivi SET progression = $1, chapter_id = $2 WHERE utilisateur_id = $3 AND cours_id = $4 RETURNING *';
-      const values = [progression,chapter, users ,  courId ];
+      const query = 'UPDATE cours_courssuivi SET progression = $1, chapter_id = $2 , quiz_done = $5 WHERE utilisateur_id = $3 AND cours_id = $4 RETURNING *';
+      const values = [progression,chapter, users ,  courId , quiz_done];
       const result = await pool.query(query, values);
   
       if (result.rows.length === 0) {
@@ -633,11 +633,11 @@ app.post('/api/suivi-cours', async (req, res) => {
   app.post('/api/update-cours-suivi-after-quiz', async (req, res) => {
     try {
       //const { id } = req.params;
-      const { progression ,cours_done, users , courId } = req.body;
+      const { progression ,quiz_done, users , courId } = req.body;
   
       // Mettre à jour la progression du suivi de cours dans la base de données
-      const query = 'UPDATE cours_courssuivi SET progression = $1 , cours_done= $2 WHERE utilisateur_id = $3 AND cours_id = $4 RETURNING *';
-      const values = [progression,cours_done, users ,  courId ];
+      const query = 'UPDATE cours_courssuivi SET progression = $1 , quiz_done= $2 WHERE utilisateur_id = $3 AND cours_id = $4 RETURNING *';
+      const values = [progression,quiz_done, users ,  courId ];
       const result = await pool.query(query, values);
   
       if (result.rows.length === 0) {
@@ -783,7 +783,7 @@ app.post('/api/cours-pourcentage', async (req, res) => {
   const {courId, utilisateurId} = req.body;
   try {
     const query = `
-      SELECT progression , chapter_id , cours_done
+      SELECT progression , chapter_id , quiz_done
       FROM cours_courssuivi WHERE utilisateur_id = $1 AND cours_id= $2;
     `;
     const value = [  utilisateurId , courId]
