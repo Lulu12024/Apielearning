@@ -1059,7 +1059,26 @@ app.post('/api/delete-sections', async (req, res) => {
 });
 
 /*********************************************************************************************************** */
+/************************************************************************************************************ */
 
+// Endpoint pour la suppression d'un utilisateur
+app.post('/api/delete-user', async (req, res) => {
+  const {userId} = req.body;
+
+  try {
+    const deleteSectionsQuery = `
+      DELETE FROM authentication_utilisateur
+      WHERE id = $1;
+    `;
+    const deleteSectionValues = [userId];
+    await pool.query(deleteSectionsQuery, deleteSectionValues);
+
+    res.status(200).json({ message: 'Lutilisateur a été supprimé avec succès a été supprimée avec succès' });
+
+  } catch (error) {
+    res.status(400).json({ error: "Une erreur est survenue lors de la suppression de l'utilisateur" });
+  }
+});
 // Fonction pour générer une référence unique
 function generateReference() {
     const length = 15;
