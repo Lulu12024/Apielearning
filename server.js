@@ -13,21 +13,21 @@ app.use(bodyParser.json());
 
 // Configuration de la connexion à la base de données PostgreSQL
 
-// const pool = new Pool({
-//     user: 'urbiimzyajypiaak85ms',
-//     host: 'bq6hhe5uadgymark8ejl-postgresql.services.clever-cloud.com',
-//     database: 'bq6hhe5uadgymark8ejl',
-//     password: 'KDMuFDlF9kyQ949iQxur',
-//     port: 5433,
-//   });
-
 const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'elearning_db',
-  password: 'admin',
-  port: 5432,
-});
+    user: 'urbiimzyajypiaak85ms',
+    host: 'bq6hhe5uadgymark8ejl-postgresql.services.clever-cloud.com',
+    database: 'bq6hhe5uadgymark8ejl',
+    password: 'KDMuFDlF9kyQ949iQxur',
+    port: 5433,
+  });
+
+// const pool = new Pool({
+//   user: 'postgres',
+//   host: 'localhost',
+//   database: 'elearning_db',
+//   password: 'admin',
+//   port: 5432,
+// });
 
 /***************************************************************************************************************************************** */
   //endpoint pour l'inscription
