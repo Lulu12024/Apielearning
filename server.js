@@ -86,6 +86,24 @@ app.post('/api/login', async (req, res) => {
     }
   });
 
+
+  /******************************************************************************************************************************** */
+  //recuperer la liste de tout les roles
+app.get('/api/role-list', async (req, res) => {
+  const {courId, utilisateurId} = req.body;
+  try {
+    const query = `
+      SELECT *
+      FROM auth_role ;
+    `;
+    const result = await pool.query(query );
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Une erreur est survenue' });
+  }
+});
 /******************************************************************************************************************************************* */
   // Endpoint pour l'enregistrement d'un cours
   app.post('/api/create/cours', (req, res) => {
@@ -832,16 +850,16 @@ app.get('/api/users', async (req, res) => {
 /***************************************************************************************************************************** */
 //route pour modifier un utilisateur
 app.post('/api/edit-users/', async (req, res) => {
-  const {id, first_name, last_name ,email, username , is_admin } = req.body;
+  const {id, first_name, last_name ,email, username , role_id } = req.body;
 
   try {
     const query = `
       UPDATE authentication_utilisateur
-      SET first_name = $1, email = $2, last_name = $3 ,username = $4  ,is_admin = $5
+      SET first_name = $1, email = $2, last_name = $3 ,username = $4  ,role_id = $5
       WHERE id = $6
       RETURNING *;
     `;
-    const values = [first_name, email,last_name , username , is_admin, id];
+    const values = [first_name, email,last_name , username , role_id, id];
     const result = await pool.query(query, values);
 
     if (result.rowCount === 0) {
